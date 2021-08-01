@@ -1,0 +1,33 @@
+@import '../../styles/index.scss';
+
+.App {
+  @include borders(white, #999);
+  background-color: #c2c2c2;
+  padding: 16px;
+}
+
+.Header {
+  @include borders(#7b7b7b, white);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #c0c0c0;
+  padding: 10px 12px;
+
+  .Face {
+    @include borders;
+    width: 52px;
+    height: 52px;
+    font-size: 35px;
+    text-align: center;
+    cursor: pointer;
+  }
+}
+
+.Board {
+  @include borders(#7b7b7b, white);
+  margin-top: 16px;
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+  grid-template-columns: repeat(9, 1fr);
+}
