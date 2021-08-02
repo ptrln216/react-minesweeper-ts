@@ -34,30 +34,285 @@ export const generateCells = (): Cell[][] => {
         continue;
       }
       let mineNum = 0;
-      const topLeftCell = row > 0 && col > 0 ? cells[row - 1][col - 1] : null;
-      const topCell = row > 0 ? cells[row - 1][col] : null;
-      const topRightCell =
-        row > 0 && col < COLS - 1 ? cells[row - 1][col + 1] : null;
-      const leftCell = col > 0 ? cells[row][col - 1] : null;
-      const rightCell = col < COLS - 1 ? cells[row][col + 1] : null;
-      const bottomLeftCell =
-        row < ROWS - 1 && col > 0 ? cells[row + 1][col - 1] : null;
-      const bottomCell = row < ROWS - 1 ? cells[row + 1][col] : null;
-      const bottomRightCell =
-        row < ROWS - 1 && col < COLS - 1 ? cells[row + 1][col + 1] : null;
-
-      if (topLeftCell?.value === CellValue.Mine) mineNum++;
-      if (topCell?.value === CellValue.Mine) mineNum++;
-      if (topRightCell?.value === CellValue.Mine) mineNum++;
-      if (leftCell?.value === CellValue.Mine) mineNum++;
-      if (rightCell?.value === CellValue.Mine) mineNum++;
-      if (bottomLeftCell?.value === CellValue.Mine) mineNum++;
-      if (bottomCell?.value === CellValue.Mine) mineNum++;
-      if (bottomRightCell?.value === CellValue.Mine) mineNum++;
+      const adjacentCells = grabAdjacentCells(cells, row, col);
+      adjacentCells.forEach((adjacentCell) => {
+        if (adjacentCell?.value === CellValue.Mine) mineNum++;
+      });
 
       currentCell.value = mineNum;
     }
   }
 
   return cells;
+};
+
+const grabAdjacentCells = (
+  cells: Cell[][],
+  rowParam: number,
+  colParam: number
+): (Cell | null)[] => {
+  const ROW_LENGTH = cells.length;
+  const COL_LENGTH = cells[0]?.length;
+  const topLeftCell =
+    rowParam > 0 && colParam > 0 ? cells[rowParam - 1][colParam - 1] : null;
+  const topCell = rowParam > 0 ? cells[rowParam - 1][colParam] : null;
+  const topRightCell =
+    rowParam > 0 && colParam < COL_LENGTH - 1
+      ? cells[rowParam - 1][colParam + 1]
+      : null;
+  const leftCell = colParam > 0 ? cells[rowParam][colParam - 1] : null;
+  const rightCell =
+    colParam < COL_LENGTH - 1 ? cells[rowParam][colParam + 1] : null;
+  const bottomLeftCell =
+    rowParam < ROW_LENGTH - 1 && colParam > 0
+      ? cells[rowParam + 1][colParam - 1]
+      : null;
+  const bottomCell =
+    rowParam < ROW_LENGTH - 1 ? cells[rowParam + 1][colParam] : null;
+  const bottomRightCell =
+    rowParam < ROW_LENGTH - 1 && colParam < COL_LENGTH - 1
+      ? cells[rowParam + 1][colParam + 1]
+      : null;
+  return [
+    topLeftCell,
+    topCell,
+    topRightCell,
+    leftCell,
+    rightCell,
+    bottomLeftCell,
+    bottomCell,
+    bottomRightCell,
+  ];
+};
+
+export const openMultipleCells = (
+  cells: Cell[][],
+  rowParam: number,
+  colParam: number
+): Cell[][] => {
+  let cellsCopy = cells.slice();
+  const adjacentCells = grabAdjacentCells(cells, rowParam, colParam);
+
+  cellsCopy[rowParam][colParam].state = CellState.Open;
+  adjacentCells.forEach((adjacentCell, index) => {
+    if (
+      adjacentCell?.state === CellState.Untouched &&
+      adjacentCell.value !== CellValue.Mine
+    ) {
+      if (adjacentCell.value === CellValue.None) {
+        // Open more cells
+        switch (index) {
+          case 0:
+            // topLeftCell
+            cellsCopy = openMultipleCells(
+              cellsCopy,
+              rowParam - 1,
+              colParam - 1
+            );
+            break;
+          case 1:
+            // topCell
+            cellsCopy = openMultipleCells(cellsCopy, rowParam - 1, colParam);
+            break;
+          case 2:
+            // topRightCell
+            cellsCopy = openMultipleCells(
+              cellsCopy,
+              rowParam - 1,
+              colParam + 1
+            );
+            break;
+          case 3:
+            // leftCell
+            cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam - 1);
+            break;
+          case 4:
+            // rightCell
+            cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam + 1);
+            break;
+          case 5:
+            // bottomLeftCell
+            cellsCopy = openMultipleCells(
+              cellsCopy,
+              rowParam + 1,
+              colParam - 1
+            );
+            break;
+          case 6:
+            // bottomCell
+            cellsCopy = openMultipleCells(cellsCopy, rowParam + 1, colParam);
+            break;
+          case 7:
+            // bottomRightCell
+            cellsCopy = openMultipleCells(
+              cellsCopy,
+              rowParam + 1,
+              colParam + 1
+            );
+            break;
+          default:
+            break;
+        }
+      } else {
+        switch (index) {
+          case 0:
+            // topLeftCell
+            cellsCopy[rowParam - 1][colParam - 1].state = CellState.Open;
+            break;
+          case 1:
+            // topCell
+            cellsCopy[rowParam - 1][colParam].state = CellState.Open;
+            break;
+          case 2:
+            // topRightCell
+            cellsCopy[rowParam - 1][colParam + 1].state = CellState.Open;
+            break;
+          case 3:
+            // leftCell
+            cellsCopy[rowParam][colParam - 1].state = CellState.Open;
+            break;
+          case 4:
+            // rightCell
+            cellsCopy[rowParam][colParam + 1].state = CellState.Open;
+            break;
+          case 5:
+            // bottomLeftCell
+            cellsCopy[rowParam + 1][colParam - 1].state = CellState.Open;
+            break;
+          case 6:
+            // bottomCell
+            cellsCopy[rowParam + 1][colParam].state = CellState.Open;
+            break;
+          case 7:
+            // bottomRightCell
+            cellsCopy[rowParam + 1][colParam + 1].state = CellState.Open;
+            break;
+          default:
+            break;
+        }
+      }
+    }
+  });
+
+  return cellsCopy;
+};
+
+const countAdjacentFlags = (adjacentCells: (Cell | null)[]): number => {
+  let flagCount = 0;
+  adjacentCells.forEach((adjacentCell) => {
+    if (adjacentCell?.state === CellState.Flagged) {
+      flagCount++;
+    }
+  });
+  return flagCount;
+};
+
+export const openAdjacentCells = (
+  cells: Cell[][],
+  rowParam: number,
+  colParam: number
+): Cell[][] => {
+  const adjacentCells = grabAdjacentCells(cells, rowParam, colParam);
+  const currentCell = cells[rowParam][colParam];
+  let cellsCopy = cells.slice();
+  const willOpen = countAdjacentFlags(adjacentCells) === currentCell.value;
+  if (willOpen) {
+    adjacentCells.forEach((adjacentCell, index) => {
+      if (adjacentCell?.state === CellState.Untouched) {
+        switch (index) {
+          case 0:
+            // topLeftCell
+            const [topLeftCell] = adjacentCells;
+            if (topLeftCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(
+                cellsCopy,
+                rowParam - 1,
+                colParam - 1
+              );
+            } else {
+              cellsCopy[rowParam - 1][colParam - 1].state = CellState.Open;
+            }
+            break;
+          case 1:
+            // topCell
+            const [topCell] = adjacentCells;
+            if (topCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(cellsCopy, rowParam - 1, colParam);
+            } else {
+              cellsCopy[rowParam - 1][colParam].state = CellState.Open;
+            }
+            break;
+          case 2:
+            // topRightCell
+            const [topRightCell] = adjacentCells;
+            if (topRightCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(
+                cellsCopy,
+                rowParam - 1,
+                colParam + 1
+              );
+            } else {
+              cellsCopy[rowParam - 1][colParam + 1].state = CellState.Open;
+            }
+            break;
+          case 3:
+            // leftCell
+            const [leftCell] = adjacentCells;
+            if (leftCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam - 1);
+            } else {
+              cellsCopy[rowParam][colParam - 1].state = CellState.Open;
+            }
+            break;
+          case 4:
+            // rightCell
+            const [rightCell] = adjacentCells;
+            if (rightCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam + 1);
+            } else {
+              cellsCopy[rowParam][colParam + 1].state = CellState.Open;
+            }
+            break;
+          case 5:
+            // bottomLeftCell
+            const [bottomLeftCell] = adjacentCells;
+            if (bottomLeftCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(
+                cellsCopy,
+                rowParam + 1,
+                colParam + -1
+              );
+            } else {
+              cellsCopy[rowParam + 1][colParam - 1].state = CellState.Open;
+            }
+            break;
+          case 6:
+            // bottomCell
+            const [bottomCell] = adjacentCells;
+            if (bottomCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(cellsCopy, rowParam + 1, colParam);
+            } else {
+              cellsCopy[rowParam + 1][colParam].state = CellState.Open;
+            }
+            break;
+          case 7:
+            // bottomRightCell
+            const [bottomRightCell] = adjacentCells;
+            if (bottomRightCell?.value === CellValue.None) {
+              cellsCopy = openMultipleCells(
+                cellsCopy,
+                rowParam + 1,
+                colParam + 1
+              );
+            } else {
+              cellsCopy[rowParam + 1][colParam + 1].state = CellState.Open;
+            }
+            break;
+          default:
+            break;
+        }
+      }
+    });
+  }
+  return cellsCopy;
 };

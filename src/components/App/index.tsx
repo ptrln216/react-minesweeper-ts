@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import "./App.scss";
 import NumberDisplay from "../NumberDisplay";
 import Button from "../Button";
-import { generateCells } from "../../utils";
+import {
+  generateCells,
+  openAdjacentCells,
+  openMultipleCells,
+} from "../../utils";
 import { Cell, CellState, CellValue, Faces } from "../../types";
 import { MINES_LIMIT } from "../../constants";
 
@@ -51,18 +55,35 @@ const App: React.FC = () => {
       return;
     }
     const currentCell = cells[rowParam][colParam];
+    let cellsCopy = cells.slice();
+
     if (currentCell.state === CellState.Flagged) {
       return;
     }
+
     if (!alive) {
+      // TODO: Make sure the mine won't appear at first click
       setAlive(true);
     }
-    const cellsCopy = cells.slice();
-    cellsCopy[rowParam][colParam].state = CellState.Open;
-    setCells(cellsCopy);
+
+    if (currentCell.state === CellState.Open) {
+      // check whether adjacent cells can be open
+      cellsCopy = openAdjacentCells(cellsCopy, rowParam, colParam);
+      setCells(cellsCopy);
+    }
+
+    // currentCell is untouched
     if (currentCell.value === CellValue.Mine) {
+      cellsCopy[rowParam][colParam].state = CellState.Open;
+      setCells(cellsCopy);
       setAlive(false);
       setFace(Faces.Dead);
+    } else if (currentCell.value === CellValue.None) {
+      cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam);
+      setCells(cellsCopy);
+    } else {
+      cellsCopy[rowParam][colParam].state = CellState.Open;
+      setCells(cellsCopy);
     }
   };
   // on right click
