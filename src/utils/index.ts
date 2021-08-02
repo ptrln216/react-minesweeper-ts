@@ -213,8 +213,19 @@ export const openAdjacentCells = (
   colParam: number
 ): Cell[][] => {
   const adjacentCells = grabAdjacentCells(cells, rowParam, colParam);
+  const [
+    topLeftCell,
+    topCell,
+    topRightCell,
+    leftCell,
+    rightCell,
+    bottomLeftCell,
+    bottomCell,
+    bottomRightCell,
+  ] = adjacentCells;
   const currentCell = cells[rowParam][colParam];
   let cellsCopy = cells.slice();
+
   const willOpen = countAdjacentFlags(adjacentCells) === currentCell.value;
   if (willOpen) {
     adjacentCells.forEach((adjacentCell, index) => {
@@ -222,7 +233,6 @@ export const openAdjacentCells = (
         switch (index) {
           case 0:
             // topLeftCell
-            const [topLeftCell] = adjacentCells;
             if (topLeftCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(
                 cellsCopy,
@@ -235,7 +245,6 @@ export const openAdjacentCells = (
             break;
           case 1:
             // topCell
-            const [topCell] = adjacentCells;
             if (topCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(cellsCopy, rowParam - 1, colParam);
             } else {
@@ -244,7 +253,6 @@ export const openAdjacentCells = (
             break;
           case 2:
             // topRightCell
-            const [topRightCell] = adjacentCells;
             if (topRightCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(
                 cellsCopy,
@@ -257,7 +265,6 @@ export const openAdjacentCells = (
             break;
           case 3:
             // leftCell
-            const [leftCell] = adjacentCells;
             if (leftCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam - 1);
             } else {
@@ -266,7 +273,6 @@ export const openAdjacentCells = (
             break;
           case 4:
             // rightCell
-            const [rightCell] = adjacentCells;
             if (rightCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam + 1);
             } else {
@@ -275,7 +281,6 @@ export const openAdjacentCells = (
             break;
           case 5:
             // bottomLeftCell
-            const [bottomLeftCell] = adjacentCells;
             if (bottomLeftCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(
                 cellsCopy,
@@ -288,7 +293,6 @@ export const openAdjacentCells = (
             break;
           case 6:
             // bottomCell
-            const [bottomCell] = adjacentCells;
             if (bottomCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(cellsCopy, rowParam + 1, colParam);
             } else {
@@ -297,7 +301,6 @@ export const openAdjacentCells = (
             break;
           case 7:
             // bottomRightCell
-            const [bottomRightCell] = adjacentCells;
             if (bottomRightCell?.value === CellValue.None) {
               cellsCopy = openMultipleCells(
                 cellsCopy,

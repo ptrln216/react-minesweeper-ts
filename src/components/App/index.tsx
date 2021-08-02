@@ -16,6 +16,25 @@ const App: React.FC = () => {
   const [time, setTime] = useState<number>(0);
   const [alive, setAlive] = useState<boolean>(false);
   const [remainMines, setRemainMines] = useState<number>(MINES_LIMIT);
+  const [hasLost, setLost] = useState<boolean>(false);
+  const [hasWon, setWon] = useState<boolean>(false);
+
+  // Game Over === Player Lost
+  useEffect(() => {
+    if (hasLost) {
+      setFace(Faces.Dead);
+      setAlive(false);
+    }
+  }, [hasLost]);
+
+  // Player win
+  useEffect(() => {
+    // player wins if only mines are left
+    if (hasWon) {
+      setAlive(false);
+      setFace(Faces.Won);
+    }
+  }, [hasWon]);
 
   // mousedown mouseup event handlers
   useEffect(() => {
@@ -54,38 +73,78 @@ const App: React.FC = () => {
     if (!alive && face === Faces.Dead) {
       return;
     }
-    const currentCell = cells[rowParam][colParam];
+
     let cellsCopy = cells.slice();
+
+    if (!alive) {
+      while (cellsCopy[rowParam][colParam].value === CellValue.Mine) {
+        cellsCopy = generateCells();
+      }
+      setAlive(true);
+    }
+
+    const currentCell = cellsCopy[rowParam][colParam];
 
     if (currentCell.state === CellState.Flagged) {
       return;
-    }
-
-    if (!alive) {
-      // TODO: Make sure the mine won't appear at first click
-      setAlive(true);
     }
 
     if (currentCell.state === CellState.Open) {
       // check whether adjacent cells can be open
       cellsCopy = openAdjacentCells(cellsCopy, rowParam, colParam);
       setCells(cellsCopy);
+      // check after open all adjacent cells, if there is any mine shown
+      // if so player lost
+      cells.forEach((row) =>
+        row.forEach((cell) => {
+          if (cell.state === CellState.Open && cell.value === CellValue.Mine) {
+            setLost(true);
+          }
+        })
+      );
     }
 
     // currentCell is untouched
     if (currentCell.value === CellValue.Mine) {
-      cellsCopy[rowParam][colParam].state = CellState.Open;
+      cellsCopy[rowParam][colParam].red = true;
+      // show all mines
+      cellsCopy.forEach((row) =>
+        row.forEach((cell) => {
+          if (cell.value === CellValue.Mine) {
+            cell.state = CellState.Open;
+          }
+        })
+      );
       setCells(cellsCopy);
-      setAlive(false);
-      setFace(Faces.Dead);
+      setLost(true);
+      return;
     } else if (currentCell.value === CellValue.None) {
       cellsCopy = openMultipleCells(cellsCopy, rowParam, colParam);
-      setCells(cellsCopy);
     } else {
       cellsCopy[rowParam][colParam].state = CellState.Open;
-      setCells(cellsCopy);
     }
+
+    // check whether player has won
+    let remainCells = 0;
+    cellsCopy.forEach((row) =>
+      row.forEach((cell) => {
+        if (cell.state !== CellState.Open) remainCells++;
+      })
+    );
+    // Player won, put flags on every mine
+    if (remainCells === MINES_LIMIT) {
+      setWon(true);
+      cellsCopy.forEach((row) =>
+        row.forEach((cell) => {
+          if (cell.value === CellValue.Mine) {
+            cell.state = CellState.Flagged;
+          }
+        })
+      );
+    }
+    setCells(cellsCopy);
   };
+
   // on right click
   const handleCellContext =
     (rowParam: number, colParam: number) =>
@@ -124,6 +183,7 @@ const App: React.FC = () => {
           value={cell.value}
           row={rowIndex}
           col={colIndex}
+          red={cell.red}
           key={`${rowIndex}-${colIndex}`}
           onClick={handleCellClick(rowIndex, colIndex)}
           onContext={handleCellContext(rowIndex, colIndex)}
@@ -135,6 +195,8 @@ const App: React.FC = () => {
   const handleFaceClick = () => {
     setAlive(false);
     setTime(0);
+    setWon(false);
+    setLost(false);
     setFace(Faces.Smile);
     setRemainMines(MINES_LIMIT);
     setCells(generateCells());
