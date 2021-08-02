@@ -9,7 +9,7 @@ export const generateCells = (): Cell[][] => {
     for (let col = 0; col < COLS; col++) {
       cells[row].push({
         value: CellValue.None,
-        state: CellState.Open, // TODO: Make this back to Untouched later
+        state: CellState.Untouched,
       });
     }
   }

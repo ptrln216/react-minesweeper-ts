@@ -7,17 +7,28 @@ interface ButtonProps {
   state: number;
   row: number;
   col: number;
+  onClick(e: React.MouseEvent): void;
+  onContext(e: React.MouseEvent): void;
 }
 
-const Button: React.FC<ButtonProps> = ({ value, state, row, col }) => {
+const Button: React.FC<ButtonProps> = ({
+  value,
+  state,
+  row,
+  col,
+  onClick,
+  onContext,
+}) => {
   const renderContent = () => {
     if (state === CellState.Open) {
       if (value === CellValue.Mine) return "💣";
-      else if (value === CellValue.None) return null;
+      if (value === CellValue.None) return null;
       return value;
-    } else if (state === CellState.Flagged) {
+    }
+    if (state === CellState.Flagged) {
       return "🚩";
     }
+    // else Untouched, display nothing
     return null;
   };
 
@@ -26,6 +37,8 @@ const Button: React.FC<ButtonProps> = ({ value, state, row, col }) => {
       className={`Button ${
         state === CellState.Open ? "open" : ""
       } value-${value}`}
+      onClick={onClick}
+      onContextMenu={onContext}
     >
       {renderContent()}
     </div>
