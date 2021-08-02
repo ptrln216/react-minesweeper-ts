@@ -8,6 +8,7 @@ interface ButtonProps {
   row: number;
   col: number;
   red?: boolean;
+  disabled: boolean;
   onClick(e: React.MouseEvent): void;
   onContext(e: React.MouseEvent): void;
 }
@@ -18,6 +19,7 @@ const Button: React.FC<ButtonProps> = ({
   row,
   col,
   red,
+  disabled,
   onClick,
   onContext,
 }) => {
@@ -36,8 +38,8 @@ const Button: React.FC<ButtonProps> = ({
 
   return (
     <div
-      className={`Button ${
-        state === CellState.Open ? "open" : ""
+      className={`Button ${state === CellState.Open ? "open" : ""} ${
+        disabled ? "disabled" : ""
       } value-${value} ${red ? "red" : ""}`}
       onClick={onClick}
       onContextMenu={onContext}

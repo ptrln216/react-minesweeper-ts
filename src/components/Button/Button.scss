@@ -3,6 +3,11 @@
 .Button {
   @include borders;
   @include buttons;
+
+  &.disabled {
+    pointer-events: none;
+  }
+
   width: 30px;
   height: 30px;
   user-select: none;

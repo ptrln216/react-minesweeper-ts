@@ -1,8 +1,13 @@
 .NumberDisplay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: Digital-7, serif;
   width: 80px;
   height: 48px;
-  font-size: 40px;
+  font-size: 56px;
+  padding-top: 8px;
+  padding-left: 2px;
   color: #ff0701;
-  background-color: black;
-  text-align: center;
+  background: black;
 }

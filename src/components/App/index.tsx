@@ -10,6 +10,8 @@ import {
 import { Cell, CellState, CellValue, Faces } from "../../types";
 import { MINES_LIMIT } from "../../constants";
 
+document.title = "Mine😎Sweeper";
+
 const App: React.FC = () => {
   const [cells, setCells] = useState<Cell[][]>(generateCells());
   const [face, setFace] = useState<Faces>(Faces.Smile);
@@ -183,6 +185,7 @@ const App: React.FC = () => {
           value={cell.value}
           row={rowIndex}
           col={colIndex}
+          disabled={hasLost || hasWon}
           red={cell.red}
           key={`${rowIndex}-${colIndex}`}
           onClick={handleCellClick(rowIndex, colIndex)}
